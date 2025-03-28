@@ -1,0 +1,38 @@
+# Arquivos e pastas do ambiente virtual
+venv/
+.env/
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Configurações do editor
+.vscode/
+.idea/
+*.swp
+
+# Arquivos de log
+*.log
+
+# Dados sensíveis
+*.env
+secrets.json
+
+# Arquivos gerados
+dist/
+build/
+*.egg-info/
+*.spec
+
+# Cache do pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Arquivos de testes
+.coverage
+.tox/
+
+# Outras configurações opcionais
+.DS_Store
+Thumbs.db
