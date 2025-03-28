@@ -2,7 +2,7 @@ import time
 import streamlit as st
 
 # Configuração da página
-st.set_page_config(page_title="Pomodoro Timer - v1.0", page_icon="🍅")
+st.set_page_config(page_title="Pomodoro Timer - v1.1", page_icon="🍅")
 
 # Função para o cronômetro
 def countdown_timer(total_seconds, placeholder):
