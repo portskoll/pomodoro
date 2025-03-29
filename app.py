@@ -1,8 +1,17 @@
 import time
+import pygame
 import streamlit as st
 
+# Inicializa o mixer de áudio do Pygame
+pygame.mixer.init()
+
+# Função para tocar o som
+def play_sound(sound_file):
+    pygame.mixer.music.load(sound_file)  # Carrega o arquivo de som
+    pygame.mixer.music.play()  # Reproduz o som
+
 # Configuração da página
-st.set_page_config(page_title="Pomodoro Timer - v1.1", page_icon="🍅")
+st.set_page_config(page_title="Pomodoro Timer 2", page_icon="🍅")
 
 # Função para o cronômetro
 def countdown_timer(total_seconds, placeholder):
@@ -16,31 +25,6 @@ def countdown_timer(total_seconds, placeholder):
         time.sleep(1)
         total_seconds -= 1
         st.session_state["current_timer"] = total_seconds
-
-# Função para exibir notificações no navegador
-def show_browser_notification(title, message):
-    st.components.v1.html(
-        f"""
-        <script>
-        if (Notification.permission === "granted") {{
-            new Notification("{title}", {{
-                body: "{message}",
-                icon: "https://cdn-icons-png.flaticon.com/512/2907/2907254.png"
-            }});
-        }} else if (Notification.permission !== "denied") {{
-            Notification.requestPermission().then(permission => {{
-                if (permission === "granted") {{
-                    new Notification("{title}", {{
-                        body: "{message}",
-                        icon: "https://cdn-icons-png.flaticon.com/512/2907/2907254.png"
-                    }});
-                }}
-            }});
-        }}
-        </script>
-        """,
-        height=0,
-    )
 
 # Inicializa os estados da sessão
 if "current_timer" not in st.session_state:
@@ -62,9 +46,7 @@ long_break_time = st.sidebar.slider("Intervalo após 3 Atividades (min)", 0, 40,
 
 # Campo de texto e botões
 st.title("Pomodoro Timer 🍅")
-#para ouvir musicas externas ff
 st.markdown('[🎵 Curtir um som para animar o trabalho?](https://radioplayer.mundotela.com.br/)', unsafe_allow_html=True)
-name = st.text_input("Digite seu nome")
 placeholder = st.empty()
 
 # Checkbox para ciclo automático
@@ -99,21 +81,25 @@ if st.session_state["running"]:
     while st.session_state["running"]:
         if not st.session_state["interval_active"]:
             # Pomodoro (atividade)
+            play_sound("som/voltar_curto.mp3")  # Toca o som ao final do ciclo Pomodoro
             activity_message = f"Ciclo {st.session_state['cycle_count'] + 1} - Atividade de {pomodoro_time} minutos."
             st.write(activity_message)
-            show_browser_notification("Pomodoro Timer", activity_message)  # Notificação no navegador
             countdown_timer(st.session_state["current_timer"], placeholder)
+            
 
             # Após o Pomodoro, configura o próximo intervalo
             st.session_state["interval_active"] = True
             if (st.session_state["cycle_count"] + 1) % 3 == 0:  # Pausa longa após 3 ciclos
+                play_sound("som/som.mp3")  # Toca o som ao final do intervalo total
                 st.session_state["current_timer"] = long_break_time * 60
                 break_message = f"Pausa longa de {long_break_time} minutos! 🌴"
+                
+
             else:
                 st.session_state["current_timer"] = interval_time * 60
                 break_message = f"Intervalo curto de {interval_time} minutos! 🛋️"
             st.write(break_message)
-            show_browser_notification("Pomodoro Timer", break_message)  # Notificação no navegador
+            play_sound("som/intervalo.mp3")  # Toca o som ao final do intervalo
         else:
             # Intervalo
             countdown_timer(st.session_state["current_timer"], placeholder)
@@ -127,3 +113,5 @@ if st.session_state["running"]:
             if not auto_cycle:
                 break
 
+# Finaliza o mixer Pygame ao encerrar o aplicativo
+pygame.mixer.quit()

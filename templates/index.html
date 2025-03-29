@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer 1.0</title>
+
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Bootstrap Icons CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Estilo adicional para centralização -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+            /* Cor de fundo suave */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .slider-label {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .timer {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .current-cycle {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            color: #495057;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card shadow-sm text-center">
+        <div class="card-body">
+            <h5 class="card-title">Pomodoro Timer 🍅</h5>
+            <p class="card-text">Ajuste os ciclos e acompanhe o progresso!</p>
+
+            <!-- Barra deslizante para tempo do Pomodoro -->
+            <div class="mb-3">
+                <label for="pomodoroSlider" class="slider-label">Tempo do Pomodoro (min): <span
+                        id="pomodoroValue">25</span></label>
+                <input type="range" id="pomodoroSlider" class="form-range" min="1" max="60" value="25"
+                    oninput="updatePomodoroValue()">
+            </div>
+
+            <!-- Barra deslizante para intervalo curto -->
+            <div class="mb-3">
+                <label for="shortBreakSlider" class="slider-label">Intervalo Curto (min): <span
+                        id="shortBreakValue">5</span></label>
+                <input type="range" id="shortBreakSlider" class="form-range" min="1" max="15" value="5"
+                    oninput="updateShortBreakValue()">
+            </div>
+
+            <!-- Barra deslizante para intervalo longo -->
+            <div class="mb-3">
+                <label for="longBreakSlider" class="slider-label">Intervalo Longo (min): <span
+                        id="longBreakValue">15</span></label>
+                <input type="range" id="longBreakSlider" class="form-range" min="1" max="30" value="15"
+                    oninput="updateLongBreakValue()">
+            </div>
+
+            <!-- Contador de tempo -->
+            <div id="timer" class="timer">25:00</div>
+
+            <!-- Ciclo Atual -->
+            <div id="currentCycle" class="current-cycle">
+                <i class="bi bi-clock"></i> Pomodoro
+            </div>
+
+            <!-- Botões -->
+            <button class="btn btn-primary mt-3" onclick="startPomodoro()">Iniciar Pomodoro</button>
+            <button class="btn btn-danger mt-3" onclick="resetPomodoro()">Redefinir</button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        let timerInterval;
+        let remainingTime = 25 * 60; // Tempo inicial em segundos
+        let currentCycle = "Pomodoro"; // Ciclo inicial
+        let pomodoroCount = 0; // Contador de Pomodoros
+
+        // Sons para os ciclos
+        const pomodoroSound = new Audio('/som/pomodoro.mp3');
+        const shortBreakSound = new Audio('/som/short_break.mp3');
+        const longBreakSound = new Audio('/som/long_break.mp3');
+
+        // Atualiza os valores exibidos das barras deslizantes
+        function updatePomodoroValue() {
+            const value = document.getElementById("pomodoroSlider").value;
+            document.getElementById("pomodoroValue").textContent = value;
+
+            // Calcula os minutos e segundos com base no valor do slider
+            const minutes = Math.floor(value);
+            const seconds = (value - minutes) * 60;
+
+            // Atualiza o texto do timer com o valor do slider
+            document.getElementById("timer").textContent = `${minutes.toString().padStart(2, '0')}:${Math.floor(seconds).toString().padStart(2, '0')}`;
+        }
+
+        function updateShortBreakValue() {
+            const value = document.getElementById("shortBreakSlider").value;
+            document.getElementById("shortBreakValue").textContent = value;
+        }
+
+        function updateLongBreakValue() {
+            const value = document.getElementById("longBreakSlider").value;
+            document.getElementById("longBreakValue").textContent = value;
+        }
+
+        // Atualiza o contador na tela
+        function updateTimerDisplay() {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            document.getElementById("timer").textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Atualiza o ciclo atual na tela
+        function updateCurrentCycle(cycleName, iconClass) {
+            currentCycle = cycleName;
+            const cycleElement = document.getElementById("currentCycle");
+            if (pomodoroCount > 0) {
+                if (pomodoroCount > 3) {
+                    pomodoroCount = 0; // Reseta os tomates se passar de 3
+                }
+                cycleElement.innerHTML = `<i class="bi ${iconClass}"></i> ${cycleName} ${"🍅".repeat(pomodoroCount)}`;
+            } else {
+                cycleElement.innerHTML = `<i class="bi ${iconClass}"></i> ${cycleName}`;
+            }
+        }
+
+        // Função principal para gerenciar ciclos do Pomodoro
+        async function startPomodoro() {
+            const pomodoroMinutes = parseInt(document.getElementById("pomodoroSlider").value);
+            const shortBreakMinutes = parseInt(document.getElementById("shortBreakSlider").value);
+            const longBreakMinutes = parseInt(document.getElementById("longBreakSlider").value);
+
+            while (true) {
+                // Ciclo de Pomodoro
+                pomodoroCount++;
+                await playCycle(pomodoroMinutes * 60, pomodoroSound, "Pomodoro", "bi-clock");
+
+                // Decidir o próximo ciclo
+                if (pomodoroCount % 3 === 0) {
+                    // Pausa longa após 3 Pomodoros
+                    await playCycle(longBreakMinutes * 60, longBreakSound, "Pausa Longa", "bi-umbrella");
+                    pomodoroCount = 0;
+                } else {
+                    // Intervalo curto
+                    await playCycle(shortBreakMinutes * 60, shortBreakSound, "Intervalo Curto", "bi-cup");
+                }
+            }
+        }
+
+        // Função para gerenciar cada ciclo
+        async function playCycle(duration, sound, cycleName, iconClass) {
+            clearInterval(timerInterval);
+            remainingTime = duration;
+            updateCurrentCycle(cycleName, iconClass); // Atualiza o ciclo na tela
+           
+                sound.play(); // Toca o som no início do ciclo
+            
+            
+            return new Promise((resolve) => {
+                timerInterval = setInterval(() => {
+                    if (remainingTime > 0) {
+                        remainingTime--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        resolve();
+                    }
+                }, 1000);
+            });
+        }
+
+        // Função para redefinir o Pomodoro
+        function resetPomodoro() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            pomodoroCount = 0; // Zera o contador de ciclos
+            const pomodoroMinutes = parseInt(document.getElementById("pomodoroSlider").value);
+            remainingTime = pomodoroMinutes * 60; // Restaura o tempo inicial
+            updateTimerDisplay();
+            updateCurrentCycle("Pomodoro", "bi-clock");
+        }
+    </script>
+</body>
+
+</html>
