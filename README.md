@@ -1,13 +1,11 @@
 # Pomodoro
 
-Temos aqui 2 versões de um app Pomodoro. Um feito em flask e o outro feito em stremlit
+## Pomodoro Personalizado 
 
+Este é um aplicativo interativo desenvolvido com  **Flask**, **JavaScript** e **Bootstrap** para ajudar você a organizar seu tempo e aumentar sua produtividade com a técnica Pomodoro.
 
-
-
-## Pomodoro Personalizado com Streamlit
-
-Este é um aplicativo interativo desenvolvido com **Streamlit** para ajudar você a organizar seu tempo e aumentar sua produtividade com a técnica Pomodoro.
+### O que é o Método Pomodoro?
+O método Pomodoro é uma técnica de gerenciamento de tempo que divide o trabalho em intervalos de foco intenso, geralmente de 25 minutos, seguidos por curtos períodos de pausa. Isso ajuda a melhorar a concentração e a evitar a fadiga mental.
 
 ### Recursos Principais
 - **Personalização dos Ciclos**: Ajuste os tempos de trabalho e pausa para atender às suas necessidades específicas.
