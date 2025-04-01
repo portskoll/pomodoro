@@ -18,3 +18,5 @@ O método Pomodoro é uma técnica de gerenciamento de tempo que divide o trabal
 3. Siga os ciclos Pomodoro e mantenha-se produtivo.
 
 Sinta-se à vontade para clonar este repositório e contribuir com novas ideias ou melhorias. 😊
+
+
