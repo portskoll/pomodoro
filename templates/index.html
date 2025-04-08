@@ -110,6 +110,7 @@
         let remainingTime = 25 * 60; // Tempo inicial em segundos
         let currentCycle = "Pomodoro"; // Ciclo inicial
         let pomodoroCount = 0; // Contador de Pomodoros
+        let lastUpdateTime = Date.now(); // Marca o último tempo atualizado
 
         // Sons para os ciclos
         const pomodoroSound = new Audio('/som/pomodoro.mp3');
@@ -188,14 +189,17 @@
             clearInterval(timerInterval);
             remainingTime = duration;
             updateCurrentCycle(cycleName, iconClass); // Atualiza o ciclo na tela
-           
-                sound.play(); // Toca o som no início do ciclo
-            
-            
+
+            sound.play(); // Toca o som no início do ciclo
+
             return new Promise((resolve) => {
                 timerInterval = setInterval(() => {
+                    const now = Date.now();
+                    const elapsed = Math.floor((now - lastUpdateTime) / 1000);
+                    lastUpdateTime = now;
+
                     if (remainingTime > 0) {
-                        remainingTime--;
+                        remainingTime -= elapsed;
                         updateTimerDisplay();
                     } else {
                         clearInterval(timerInterval);
@@ -204,6 +208,13 @@
                 }, 1000);
             });
         }
+
+        // Detecta se a aba está ativa ou não
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                lastUpdateTime = Date.now(); // Atualiza o tempo quando a aba é ocultada
+            }
+        });
 
         // Função para redefinir o Pomodoro
         function resetPomodoro() {
